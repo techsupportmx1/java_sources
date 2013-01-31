@@ -1,0 +1,233 @@
+
+package primary;
+
+//Declaración de las bibliotecas
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
+
+/*Declaración  de la clase principal que hereda componentes de la biblioteca JFrame usando los métodos para listas: DocumentListener y ListSelectionListener*/
+class JavaDictionary extends JFrame implements DocumentListener,ListSelectionListener{
+
+//Declaración de variables del ambiente gráfico
+private JList wordlist;
+private JTextField txtbox;
+private JTextPane txtPane;
+private Highlighter.HighlightPainter cyanPainter;
+private Highlighter.HighlightPainter redPainter;
+
+//Declaración del constructor de la clase principal
+public JavaDictionary(){
+//Declaración del título principal del Diseño
+super("Traductor Ingles-Español");
+//Creación del objeto JPanel y asegurar que los componentes se alineen a la izquierda
+JPanel panel=new JPanel();
+panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+/*Asigna valor nulo al diseño, para que se activen las posiciones de los controles a mostrar*/
+setLayout(null);
+
+
+/*Creación del Objeto JTextField y se le agrega el evento DocumentListener para asegurar que el valor se obtenga al utilizar este objeto*/
+txtbox=new JTextField();
+txtbox.getDocument().addDocumentListener(this);
+//Creación del objeto JTextPane y colocar como Fuente de letra "Times New Roman" con estilo Italico y tamaño de 18
+Font timesfont=new Font("Times New Roman",Font.ITALIC,18);
+txtPane = new JTextPane();
+txtPane.setFont(timesfont);
+//Creación del objeto JList que acepta datos en modo de lista como parametros.
+/*Después se llenara este objeto lista con datos de palabras a traducir de Inglés a Español leidas de un archivo de texto, utilizando el método AddToList()*/
+DefaultListModel listmodel=new DefaultListModel();
+addToList(listmodel);
+wordlist=new JList(listmodel);
+wordlist.setVisibleRowCount(20);
+wordlist.addListSelectionListener(this);
+/*Se agrega un objeto JScrollPane al objeto 'JPanel' para acomodar los datos en forma vertical y se muestre una barra vertical(Scroll)*/
+JScrollPane scr=new JScrollPane(wordlist);
+panel.add(scr);
+
+//Se definen los lugares y dimensiones de los componentes a mostrar en el objeto JFrame Window o ventana principal
+panel.setBounds(10,80,150,480);
+txtbox.setBounds(10,40,panel.getWidth(),25);
+txtPane.setBounds(panel.getWidth(),80,749,480);
+
+add(txtbox);
+add(panel);
+add(txtPane);
+
+
+//Se agrega un evento WindowListener al objeto JFrame para crear la reacción al cerrar el evento
+addWindowListener(new Listener());
+
+//Se asigna el tamaño de la ventana JFrame
+pack();
+setSize(800,475);
+//Se asigna el color de fondo de la ventana JFrame
+Container content=getContentPane();
+content.setBackground(Color.BLUE);
+
+//No permite que la ventana JFrame se redimensione por el usuario
+setResizable(false);
+
+//Asigna que la ventana JFrame sea visible al usuario
+setVisible(true);
+
+
+}
+
+
+//Se declara una clase de Eventos de la ventana principal que hereda de WindowAdapter
+class Listener extends WindowAdapter{
+
+//Este método finaliza la ejecución del programa al cerrar la ventana JFrame
+public void windowClosing(WindowEvent e){System.exit(0);}
+
+}
+//Este método actualiza al component si ocurre un evento de la ventana JFrame
+public void changedUpdate(DocumentEvent e){
+
+}
+
+//Este método inserta texto en el componente TextBox para utilizarlo en la búsquedad de la palabra a traducir
+public void insertUpdate(DocumentEvent e){
+selectlist(txtbox.getText());
+}
+
+//Este método se activa cuando se suprime texto del componente TextBox, y cuando se selecciona un elemento de la lista llama al método selectlist() y la traducción de la palabra seleccionada aparecerá subsecuentemente ejecutando el método showtran() */
+public void removeUpdate(DocumentEvent e){
+
+selectlist(txtbox.getText());
+}
+
+
+/*Este método se activa cuando el usuario selecciona una palabra dentro de la lista y aparecerá la traducción ejecutando el método showtran()*/
+public void valueChanged(ListSelectionEvent e){
+
+showtran(wordlist.getSelectedValue());
+}
+
+/*Declaración del método selectlist() recibiendo una cadena de caracteres como parámetros*/
+public void selectlist(String text){
+//Obtiene el numero de objetos de la lista de datos
+int size = wordlist.getModel().getSize();
+
+/*Selecciona de la lista el texto que corresponde segun se haya escrito al componente TextBox, respetando minúsculas y Mayúsculas, se utiliza el método de búsquedad binaria para agilizar el proceso*/
+int index=binsearch(wordlist, text,size);
+if(index!=-1) {wordlist.setSelectedIndex(index); wordlist.ensureIndexIsVisible(index);}
+
+
+}
+//Declaración del método de búsquedad binaria
+public int binsearch(JList list,String target, int n){
+int i;
+int pos=-1;
+int found=0;
+//Obtiene el elemento de en medio de la lista
+Object item = list.getModel().getElementAt(n/2);
+String itemstr=(String)item;
+
+//Se asegura que la dimensión del elemento de en medio de la lista sea mas grande que el escrito por el usuario
+if(itemstr.length()<=target.length())
+itemstr=itemstr.concat("Traductor Ingles-Español");
+
+
+if(target.compareTo(itemstr.substring(0,target.length()))<=0){//look in the first half
+for(i=0;i<=n/2 && found!=1;i++){
+item =list.getModel().getElementAt(i);
+itemstr=(String)item;
+if(itemstr.length()>=target.length())
+if(target.compareTo(itemstr.substring(0,target.length()))==0){ found=1;pos=i;break;}
+}
+}
+else{ //look in the second haft
+for(i=n/2+1;i<n && found!=1;i++){
+
+item =list.getModel().getElementAt(i);
+itemstr=(String)item;
+if(itemstr.length()>=target.length())
+if(target.compareTo(itemstr.substring(0,target.length()))==0){ found=1;pos=i;break;}
+
+}
+}
+
+
+return pos;
+}
+
+public void addToList(DefaultListModel listmodel){
+
+try{ //catch errors if any
+String text;
+//Escribir la ruta completa del archivo utilizar el simbolo '/' diagonal simple para separar los directorios
+FileReader fr=new FileReader("C:/Users/server_agv/Documents/NetBeansProjects/word_dic/src/primary/dictdata.txt");
+BufferedReader br=new BufferedReader(fr);
+//text=br.readLine();
+while ((text=br.readLine())!=null){
+//Read lines of English term from the file using readLine() method
+listmodel.addElement(text.substring(0,text.indexOf('_')));
+}
+br.close();//close file using close() method
+} catch(Exception ie){System.out.println("IO problem!");ie.printStackTrace();}
+
+
+}
+
+public void showtran(Object t){
+try{ //catch errors if any
+txtPane.setText("");
+String text;
+String item=(String)t;
+//Escribir la ruta completa del archivo utilizar el simbolo '/' diagonal simple para separar los directorios
+FileReader fr=new FileReader("C:/Users/server_agv/Documents/NetBeansProjects/word_dic/src/primary/dictdata.txt");
+BufferedReader br=new BufferedReader(fr);
+//text=br.readLine();
+while ((text=br.readLine())!=null){
+//Read lines of translation text from the file using readLine() method
+
+if(item.compareTo(text.substring(0, item.length()))==0){
+String st=text.substring(item.length()+1); //Display unicode characters
+byte[] chars=st.getBytes();
+String unitext=new String(chars,"UTF-8");
+int index=unitext.indexOf('.');
+//coloring translation text
+highlight(unitext.substring(0,index),Color.RED);
+highlight(unitext.substring(index,unitext.length()),Color.BLUE);
+
+break;
+
+
+}
+
+}
+br.close();//close file using close() method
+} catch(Exception ie){System.out.println("IO problem!");ie.printStackTrace();}
+
+}
+
+
+public void highlight(String content, Color c)
+{
+//Coloring text appended to the JTextPane
+//The color of the text is specified by c argument
+//The text is aligned in justified layout
+StyleContext style = StyleContext.getDefaultStyleContext();
+AttributeSet aset = style.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+aset = style.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+int len = txtPane.getDocument().getLength();
+txtPane.setCaretPosition(len);
+txtPane.setCharacterAttributes(aset, false);
+txtPane.replaceSelection(content);
+
+}
+
+//Show the dictionary window
+
+public static void main(String[] args){
+
+JavaDictionary dic=new JavaDictionary();
+}
+
+}
