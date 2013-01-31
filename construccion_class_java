@@ -1,0 +1,66 @@
+import java.util.*;
+import java.lang.*;
+
+class PrimeraClase{
+  			PrimeraClase(){System.out.println("Primera Clase");}
+				static PrimeraClase c=new PrimeraClase();
+				void metodo(int ejecucion){
+				System.out.println("Metodo1("+ejecucion+")");
+					}
+				}
+class SegundaClase{
+				static PrimeraClase primera1=new PrimeraClase();
+				SegundaClase(){
+				System.out.println("Segunda Clase");
+				primera1.metodo(10);
+					}
+				void metodo (int ejecucion){
+				System.out.println("Metodo2("+ejecucion+")");
+				}
+				static PrimeraClase primera2=new PrimeraClase();
+				static SegundaClase segunda1=new SegundaClase();
+				
+				}
+class TerceraClase{
+				PrimeraClase primera3=new PrimeraClase();
+				static PrimeraClase primera4=new PrimeraClase();
+				TerceraClase(){
+				System.out.println("Tercera Clase");
+				primera4.metodo(20);
+				}
+				void metodo(int ejecucion){
+				System.out.println("Metodo3("+ejecucion")");
+				}
+				static PrimeraClase primera5=new PrimeraClase();
+			static{
+			new PrimeraClase();
+			new SegundaClase();
+			new TerceraClase();
+				}
+			}
+public class Ejemplo01{
+	public static void main(String[]args){
+	new Ejemplo01();
+	System.out.println("Programa Principal 1");
+	new TerceraClase();
+	SegundaClase.primera2.metodo(30);
+	System.out.println("Programa Principal");
+	new TerceraClase();
+	segunda.metodo(40);
+	tercera.metodo(50);
+}
+	static SegundaClase segunda=new SegundaClase();
+	{
+	System.out.println("Static programa principal 1");
+		segunda=new SegundaClase();
+}
+	static TerceraClase tercera=new TerceraClase();
+{
+	System.out.println("Static Programa principal 2");
+		tercera=new TerceraClase();
+}
+}
+				
+				
+				
+				
